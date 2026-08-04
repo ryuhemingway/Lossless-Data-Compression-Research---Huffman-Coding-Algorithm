@@ -1,13 +1,17 @@
 # Research Paper
-* Name:
-* Semester:
-* Topic:
-
+* Name: Ryu Hemingway   
+* Semester: SU2026
+* Topic: Huffman Coding Algorithm
+* Language: Python
 
 
 Note the following is an example outline to help you. Please rework as you need, you do not need to follow the section heads and *YOU SHOULD NOT* make everything a bulleted list. This needs to read as an executive report/research paper. 
 
 ## Introduction
+
+Huffman coding is a type of prefix code (a set of code words where no code word is the start of another code word) that is predominantly used for lossless data compression. Lossless data compression is the process of copressing a file and then reversing the compression process without losing any information. For example, if a user compresses a 100mb file to 70mb (File(100mb) -> Compression -> File(70mb)) then reverses the process 70mb to 100mb (File(70mb) -> Compression^-1 -> File(100mb)) all data should be completely preserved. 
+
+
 - What is the algorithm/datastructure?
 - What is the problem it solves? 
 - Provide a brief history of the algorithm/datastructure. (make sure to cite sources)
