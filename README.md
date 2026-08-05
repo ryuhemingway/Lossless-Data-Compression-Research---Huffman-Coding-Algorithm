@@ -73,7 +73,7 @@ Huffman's greedy choice is the unusual case in which the strategy is provably op
 
 ## References  
 
-[1] Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. [2009]. Introduction to Algorithms (3rd. ed.). MIT Press Cambridge, MA.
+[1] Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. 2009. Introduction to Algorithms (3rd. ed.). MIT Press Cambridge, MA.
 
 [2] David A. Huffman. 1952. A method for the construction of minimum-redundancy codes. Proceedings of the Institute of Radio Engineers 40, 9 (September 1952), 1098-1101. https://doi.org/10.1109/JRPROC.1952.273898
 
