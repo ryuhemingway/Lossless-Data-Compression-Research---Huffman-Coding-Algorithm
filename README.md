@@ -4,14 +4,11 @@
 * Topic: Huffman Coding Algorithm
 * Language: Python
 
-
-Note the following is an example outline to help you. Please rework as you need, you do not need to follow the section heads and *YOU SHOULD NOT* make everything a bulleted list. This needs to read as an executive report/research paper. 
-
 ## Introduction:
 
-In 1951 a student named David Huffman took an information technology course for his electrical engineering graduate program. The class was offered to either write a report or take an exam and naturally, Huffman decided the report would be easier than the exam. For the report, Huffmans professor Robert Fano asked students to find the most eﬃcient method of representing numbers, letters or other symbols using a binary code[1]. Coming close to giving up, he finally recognised that assigning the longest codes first and proceeding from the branches toward the root yields an optimal solution every time [1]. His report ended up being published and is still used to this day for lossless data compression.
+In 1951 a student named David Huffman took an information theory course for his electrical engineering graduate program. The class was offered to either write a report or take an exam and naturally, Huffman decided the report would be easier than the exam. For the report, Huffman was assigned the problem of encoding a set of symbols in binary using as few digits as possible.[4]. Coming close to giving up, he finally recognised that assigning the longest codes first and proceeding from the branches toward the root yields an optimal solution every time [6]. His report ended up being published and is still used to this day for lossless data compression.
 
-Huffman coding is a type of prefix code (a set of code words where no code word is the start of another code word) that is predominantly used for lossless data compression. Lossless data compression is the process of compressing a file and then reversing the compression process without losing any information. The method used to achieve lossless compression is based on the observation that fixed-width encoding wastes space. Giving the letters 'A' and 'X' both 8 bits is wasteful if 'A' occurs 10 times more frequently than 'X'. Therefore, the basis of the algorithm is: if some symbols appear more often than others, assign the more frequent symbols shorter codes.
+Huffman coding is a type of prefix code (a set of code words where no code word is the start of another code word) that is predominantly used for lossless data compression. Lossless data compression is the process of compressing a file and then reversing the compression process without losing any information. The method used to achieve lossless compression is based on the observation that fixed-width encoding wastes space. Giving the letters 'A' and 'X' both 8 bits is wasteful if 'A' occurs 10 times more frequently than 'X'. Therefore, the basis of the algorithm is, if some symbols appear more often than others, assign the more frequent symbols shorter codes. ASCII, for example, allocates eight bits per character regardless of its frequency. This creates a memory inefficiency, since fixed-width encoding expends identical storage on symbols of potentially significantly different utility. Huffman encoding solves this by eliminating the redundancy through assigning shorter code words to higher-frequency symbols. The justification behind this principle will be explored in more depth throughout the report.
 
 $$
 \begin{aligned}
@@ -20,20 +17,11 @@ $$
 \end{aligned}
 $$
 
-The reason Huffman encoding is useful is that conventional character encodings assign a fixed number of bits to every symbol in the alphabet. ASCII, for example, allocates eight bits per character irrespective of its frequency. This creates a memory inefficiency, since fixed-width encoding expends identical storage on symbols of potentially significantly different utility. Huffman encoding solves this by eliminating the redundancy through assigning shorter code words to higher-frequency symbols. The justification behind this principle will be explored in more depth throughout the report.
-
-
-- What is the algorithm/datastructure? (Done)
-- What is the problem it solves? (Done)
-- Provide a brief history of the algorithm/datastructure. (make sure to cite sources)(Done)
-- Provide an introduction to the rest of the paper. (Done)
-
-
 ## Analysis of Algorithm/Datastructure:
 
 ### Time Complexity:
 
-When analysing the time and space complexity of Huffman's algorithm, two parameters govern the result. Let n denote the number of distinct symbols in the source alphabet, and m the total number of symbols in the input. For byte oriented input, n cannot exceed 256, since a byte represents atmost 256 distinct values, whereas m grows without bound as the file grows. For any input of non trivial length it follows that n ≪ m, and the two parameters must therefore be kept distinct since they appear in different terms of the cost.
+When analysing the time and space complexity of Huffman's algorithm, two parameters dictate the result. Let n denote the number of distinct symbols in the source alphabet, and m the total number of symbols in the input. For byte oriented input, n cannot exceed 256, since a byte represents atmost 256 distinct values, whereas m grows without bound as the file grows. For any input of non trivial length it follows that n ≪ m, and the two parameters must therefore be kept distinct since they appear in different terms of the cost.
 
 The algorithm runs in four steps:
 
@@ -44,14 +32,17 @@ The algorithm runs in four steps:
 
 Counting and encoding only take 1 passover of the data so each one costs Θ(m). Building the tree costs O(n log n), giving a total of Θ(m + n log n).
 
-The cost of the tree comes from merging the loop. Each merge needs the two smallest remaining weights, then the heap finds the smallest in O(n log n) time. For building a tree of n leaves and n-1 internal nodes, it will take 2n-1 insert and 2n-1 extractMin operations which with a binary heap gives O(n log n)[2]. An important point to note is that the log factor comes from sorting, not merging. Van Leeuwen proved this by showing the tree can be built in linear time if the weights are already sorted since internal nodes are are ceated and consumed in non-decreasing weight order[3]. His technique is called the Two-Queue Method.
+The cost of the tree comes from merging the loop. Each merge needs the two smallest remaining weights, then the heap finds the smallest in O(log n) time. For building a tree of n leaves and n-1 internal nodes, it will take 2n-1 insert and 2n-1 extractMin operations which with a binary heap gives O(n log n)[3]. An important point to note is that the log factor comes from sorting, not merging. Van Leeuwen proved this by showing the tree can be built in linear time if the weights are already sorted since internal nodes are are ceated and consumed in non-decreasing weight order[3,5]. His technique is called the Two-Queue Method.
 
 ### Space Complexity:
 
-In terms of space complexity, the tree hold n leaves and n-1 internal nodes so 2n-1 nodes in total. The heap and fequency table also run at Θ(n) giving the total working space Θ(n).
+In terms of space complexity, every merge removes two nodes from the queue and returns one, so the number of live nodes falls by exactly one per merge. Reducing n leaves to a single root therefore requires n−1 merges. Since each merge creates one internal node, the finished tree contains n leaves and n−1 internal nodes, resulting in 2n−1 in total. Each node stores a weight with two child pointers and constant number of words, so the tree occupies Θ(n) space. The same mechanism bounds the heap. It begins with n entries and never grows beyond that. The frequency table holds one counter per distinct symbol, also n. Every structure is therefore linear in the alphabet size, and total working space is Θ(n). Because m does not appear in this bound, memory consumption is governed by alphabet size rather than input length, and neither pass requires the input to be resident in full.
 
-- General analysis of the algorithm/datastructure
+## General analysis of the algorithm/datastructure:
 
+The Hoffman Algorithm minimises total encoded length. This is best represented by the function: Σ f(s) · L(s). Where f(s) is the frequency of symbol s and L(s) the length in bits of its codeword. Huffman states the objective in normalised form, as the average message length Lav = Σ P(i)L(i) over message probabilities P(i), and defines a minimum-redundancy code as one yielding the lowest possible average message length for an ensemble of N members and D coding digits [2]. The two formulations differ only by the constant factor m, so minimising either minimises the other. The algorithm is also greedy: at each step it merges the two lowest-weight nodes available, never reconsidering an earlier choice [3, 4]. Greedy strategies ordinarily yield only approximations. Huffman himself notes that the Shannon and Fano procedures are not optimum, approaching optimal behaviour only as N tends to infinity [2]. 
+
+Huffman's greedy choice is the unusual case in which the strategy is provably optimal, and proving it relies on two properties. The first is the greedy-choice property: some optimal code places the two lowest-weight symbols as sibling leaves at maximum depth. Huffman establishes this by an exchange argument. For an optimum code, the length of a given message code can never be less than that of a more probable message code, since interchanging the two so that the shorter is associated with the more probable message would reduce average message length [2]. Because the interchange merely permutes an existing assignment rather than altering the set of codewords, the prefix property is preserved. Also because the improvement is strict, "more frequent implies shorter" is a necessary condition for optimality rather than a design heuristic. Huffman derives two further necessary conditions: that L(N) must equal L(N−1), and that at least two and no more than D of the codes of length L(N) must be identical except in their final digits [2]. The second is optimal substructure: replacing the merged pair with a composite symbol of summed weight produces an instance one symbol smaller, whose optimal solution extends to an optimal solution of the original. Huffman expresses this as a sequence of auxiliary ensembles, each containing one fewer message than its predecessor, applied until two members remain [2]. He then argues that the conditions established as necessary are also sufficient, so the procedure always establishes an optimum binary code [2].
 
 ## Empirical Analysis
 - What is the empirical analysis?
@@ -82,9 +73,14 @@ In terms of space complexity, the tree hold n leaves and n-1 internal nodes so 2
 
 ## References  
 
-1. Inna Pivkina. [n. d.]. Discovery of Huffman Codes. Retrieved August 4, 2026 from https://www.cs.nmsu.edu/historical-projects/Projects/18920140825Huffman.pdf
+[1] Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. [2009]. Introduction to Algorithms (3rd. ed.). MIT Press Cambridge, MA.
 
-2. N. G. Machado, D. L. L. de Oliveira, and M. T. Valente. 2019. Cross-Language GUI Widget Detection for Automated Testing. In *Proceedings of the 2019 27th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE 2019)*. ACM, New York, NY, USA, 352–362. https://doi.org/10.1145/3342555
+[2] David A. Huffman. 1952. A method for the construction of minimum-redundancy codes. Proceedings of the Institute of Radio Engineers 40, 9 (September 1952), 1098-1101. https://doi.org/10.1109/JRPROC.1952.273898
 
-3. Alistair Moffat. 2019. Huffman Coding. ACM Comput. Surv. 52, 4, Article 85 (August 2019), 35 pages. https://doi.org/10.1145/3342555
- 
+[3] Alistair Moffat. 2019. Huffman coding. ACM Comput. Surv. 52, 4, Article 85 (2019), 35 pages. https://doi.org/10.1145/3342555
+
+[4] Inna Pivkina. [n. d.]. Discovery of Huffman codes. Convergence, Mathematical Association of America. Retrieved August 4, 2026 from https://www.cs.nmsu.edu/historical-projects/Projects/18920140825Huffman.pdf
+
+[5] Jan van Leeuwen. 1976. On the construction of Huffman trees. In Proceedings of the 3rd International Colloquium on Automata, Languages and Programming (ICALP). Edinburgh University Press, Edinburgh, 382-410.
+
+[6] Gary Stix. 1991. Profile: David A. Huffman. Scientific American 265, 3 (September 1991), 54, 58.
