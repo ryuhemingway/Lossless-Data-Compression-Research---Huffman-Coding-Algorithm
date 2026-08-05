@@ -1,6 +1,8 @@
+import math
 import os
 import tempfile
 import unittest
+from collections import Counter
 
 from huffman_coding import (
     HuffmanNode,
@@ -255,6 +257,43 @@ class TestFileCompression(unittest.TestCase):
             for p in [txt_path, compressed_path, decompressed_path]:
                 if os.path.exists(p):
                     os.unlink(p)
+
+
+# ---------------------------------------------------------------------------
+# Entropy bound
+# ---------------------------------------------------------------------------
+
+
+class TestEntropyBound(unittest.TestCase):
+    """Huffman satisfies H <= L < H + 1 for any distribution.
+
+    This is the one property the report claims that the tests above do not
+    already cover: the code never beats the entropy floor, and never misses
+    it by a full bit per symbol.
+    """
+
+    def _entropy(self, text):
+        """Shannon entropy of *text*, in bits per symbol."""
+        n = len(text)
+        return -sum((c / n) * math.log2(c / n) for c in Counter(text).values())
+
+    def _avg_code_length(self, text):
+        """Mean Huffman codeword length for *text*, in bits per symbol."""
+        freq = build_frequency_table(text)
+        codes = build_code_table(build_huffman_tree(freq))
+        return sum(len(codes[ch]) * f for ch, f in freq.items()) / len(text)
+
+    def test_within_one_bit_of_entropy(self):
+        """Check the bound on near-uniform, skewed, and English-like text."""
+        for text in [
+            "abcdefghijklmnopqrstuvwxyz" * 100,
+            ("a" * 90 + "b" * 10) * 10,
+            "the quick brown fox jumps over the lazy dog " * 50,
+        ]:
+            h = self._entropy(text)
+            avg = self._avg_code_length(text)
+            self.assertGreaterEqual(avg, h - 1e-9)  # tolerance for float error
+            self.assertLess(avg - h, 1.0)
 
 
 if __name__ == "__main__":

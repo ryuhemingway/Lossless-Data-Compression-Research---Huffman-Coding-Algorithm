@@ -1,0 +1,59 @@
+============================================================
+SAMPLE HUFFMAN ENCODING RUN
+============================================================
+
+Original text (36 chars):
+  this is an example of huffman coding
+
+Frequency table:
+  ' ' (U+0020): 6
+  'i' (U+0069): 3
+  'a' (U+0061): 3
+  'n' (U+006E): 3
+  'f' (U+0066): 3
+  'h' (U+0068): 2
+  's' (U+0073): 2
+  'e' (U+0065): 2
+  'm' (U+006D): 2
+  'o' (U+006F): 2
+  't' (U+0074): 1
+  'x' (U+0078): 1
+  'p' (U+0070): 1
+  'l' (U+006C): 1
+  'u' (U+0075): 1
+  'c' (U+0063): 1
+  'd' (U+0064): 1
+  'g' (U+0067): 1
+
+Huffman code table:
+  'i': 000
+  ' ': 111
+  'o': 0010
+  'e': 0100
+  'm': 0101
+  'h': 0110
+  's': 1001
+  'f': 1011
+  'a': 1100
+  'n': 1101
+  'g': 00110
+  'x': 00111
+  'u': 01110
+  'l': 01111
+  'd': 10000
+  'c': 10001
+  't': 10100
+  'p': 10101
+
+Average code length: 3.972 bits/char (fixed-width would be 8 bits/char)
+Shannon entropy:     3.933 bits
+
+Encoded bit string (143 bits):
+  10100011000010011110001001111110011011110100001111100010110101011110100111001010...
+
+Compressed  bytes: 83
+Original    bytes: 36
+Compression ratio: 2.306
+
+Decoded text matches original: True
+Decoded: this is an example of huffman coding

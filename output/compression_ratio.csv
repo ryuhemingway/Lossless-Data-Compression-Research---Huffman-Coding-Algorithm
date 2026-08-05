@@ -1,0 +1,7 @@
+scenario,input_size,entropy,avg_code_len_bits,original_bytes,compressed_bytes,ratio,savings_pct
+uniform,10000,4.6988,4.7559,10000,6034,0.6034,39.66
+two_chars_equal,10000,0.9999,1.0,10000,1267,0.1267,87.33
+two_chars_skewed,10000,0.4588,1.0,10000,1267,0.1267,87.33
+single_char,10000,0.0,0.0,10000,14,0.0014,99.86
+zipf_n=26_s=1.0,10000,3.9578,3.9793,10000,5064,0.5064,49.36
+zipf_n=26_s=2.0,10000,2.0895,2.1552,10000,2783,0.2783,72.17
