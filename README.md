@@ -100,8 +100,43 @@ Huffman's greedy choice is the unusual case in which the strategy is provably op
 
 ## Empirical Analysis
 
-- What is the empirical analysis?
-- Provide specific examples / data.
+Two experiments were run to test whether the behaviour predicted in the analysis above actually appears when the algorithm is run. The first experiment focused on varying the total number of symbols m while holding the alphabet approximately constant. This was done in order to isolate the Θ(m) term. For the second experiment, m is fixed at 10,000 characters and only the shape of the symbol distribution varies, in order to test the relationship between compression and entropy. Both are driven by `empirical_analysis.py` with the random seed fixed at 42, so the results reproduce exactly on re-running; the raw measurements are committed as `output/time_vs_size.csv` and `output/compression_ratio.csv`. 
+
+### Time Vs. Input size:
+
+Inputs ranging from 100 to 100,000 random alphanumeric characters were compressed and then decompressed, and on every trial the decompressed result was checked against the original to confirm that nothing had been lost. The total time taken does rise roughly in proportion to the input size, but a clearer test is to measure the cost per character, since a per-character cost that stays flat is exactly what Θ(m) predicts.
+
+![Figure 1: Cost per character settles to a constant](output/figures/figure1_time_per_char.png)
+
+As seen in Figure 1, both curves drop steeply at first and then flatten out. Encoding settles at 0.158 µs per character and decoding at 0.463 µs per character. Over the last tenfold increase in input size, from 10,000 to 100,000 characters, encoding time grows by a factor of 8.8 and decoding by a factor of 9.9, where Θ(m) predicts a factor of 10. The higher cost at the small input sizes does not mean the algorithm stops being linear. It is the fixed cost of building the tree, which at 100 characters is being spread over too few symbols for it to disappear into the average.
+
+An important point to note is that decoding is consistently around three times slower than encoding. This is a property of the implementation rather than of the algorithm itself. Encoding only performs one dictionary lookup per character, whereas decoding has to walk the tree one step for every bit, and since the average codeword is roughly six bits long this works out at six times as many steps for each character that is recovered.
+
+### Compression Ratio and Symbol Distribution:
+
+The second experiment fixes the input at 10,000 characters and changes only the distribution of the symbols. As the entropy falls the compression steadily improves. A uniform alphabet of 26 symbols has an entropy of 4.6988 bits and compresses to 60.34% of its original size, a Zipf distribution with s = 1.0 has an entropy of 3.9578 bits and compresses to 50.64%, and with s = 2.0 the entropy is 2.0895 bits and it compresses to 27.83%. Compression therefore tracks the entropy of the source rather than the size of the file, which is what the theory requires. The guarantee given by the theory is that the average codeword length L will satisfy H ≤ L < H + 1. Measuring the redundancy, which is the difference L − H, therefore tests that bound directly.
+
+![Figure 2: Measured redundancy stays inside the one-bit bound](output/figures/figure2_redundancy.png)
+
+Every one of the distributions satisfies the bound, and five of the six come within 0.07 bits of the entropy floor, which confirms that Huffman coding is close to optimal in the ordinary case. The sixth distribution is the exception. The two cases that use only two symbols produce the most interesting result of the whole experiment. A distribution where the two symbols occur equally often has an entropy of 0.9999 bits, and a distribution where one symbol occurs 9x as often as the other has an entropy of 0.4588 bits, which is less than half as much. Despite that difference, both compress to exactly the same size of 1,267 bytes, and both end up with an average codeword length of exactly 1.0 bits per symbol.
+
+The reason for this is that a Huffman codeword has to be a whole number of bits, and no symbol can ever be given fewer than one bit. When the entropy of a source falls below one bit per symbol, the code has no way of following it down any further. In the skewed case the redundancy is 0.5412 bits, so roughly 54% of every bit that gets written is waste that the theory says does not need to be spent at all. This is the practical limit of the algorithm, and it is the exact limitation that arithmetic coding was developed to solve, since arithmetic coding does not have to use a whole number of bits for each symbol [3].
+
+### Fixed Overhead and the Break Even Point:
+
+Since the compressed file has to carry its own decoding tree inside it, compression does not come for free at the smaller input sizes.
+
+![Figure 3: Below roughly a thousand characters, the header costs more than it saves](output/figures/figure3_break_even.png)
+
+As can be seen in Figure 3, at 100 characters, the output is 2.31 times larger than the input. Even at 500 characters, it is still 1.12 times larger. However, when we reach 1,000 characters, the output finally becomes smaller than the input, at a ratio of 0.94. After 1000 characters the ratio begins to settles towards 0.7477. The point at which compression starts to pay off seems to fall somewhere between 500 and 1,000 characters for an alphabet of this size. The sample run recorded in output/sample_run.txt encodes a 36-character string made up of 18 distinct symbols: "this is an example of huffman coding". The preorder tree serialisation writes two bytes for every leaf and one byte for every internal node, which gives 18 × 2 + 17 = 53 bytes and the fixed header adds a another 12 bytes on top of that. This comes to 65 bytes of overhead against only 18 bytes of actual encoded data, or 83 bytes in total which is exactly what the sample run records. The overhead grows with the alphabet size n while the saving grows with the input length m, so the method only begins to pay off once m is large enough to dominate n.
+
+### Frequency and Codeword Length:
+
+Finally, the code table that was produced for the sample string can be checked directly against the exchange argument set out earlier in the report.
+
+![Figure 4: More frequent symbols receive shorter codewords](output/figures/figure4_freq_vs_codelen.png)
+
+Reading down the chart, the frequency of the symbols falls but the length of their codewords never falls with it. This is exactly what the exchange argument requires because more frequent symbols get smaller codewords while less frequent ones get more. The space character appears 6 times and is given a 3 bit code, whereas every symbol that appears only once is given 5 bits. The average codeword length works out at 3.972 bits against an entropy of 3.933 bits, so the redundancy here is only 0.039 bits. This should also be compared against the eight bits per character that a fixed-width encoding would spend on the same string.
 
 ## Application
 
@@ -111,6 +146,8 @@ Huffman's greedy choice is the unusual case in which the strategy is provably op
 - Make sure to provide sources for your information.
 
 ## Implementation
+
+Implimentation of 
 
 - What language did you use?
 - What libraries did you use?
