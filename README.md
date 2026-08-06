@@ -190,7 +190,7 @@ In summary, the results of Huffman's coding algorithm show that time scales line
 
 ## LLM Use Disclosure
 
-Gemini: When you search something in google now, it is automatically routed to Gemini and Gemini gives its insights. I googled questions I had. Then Gemini explained and I sometimed prompted followup questions to better understand what it was explaining about how Hoffman Coding Algorithm worked. 
+Gemini: When you search something in google now, it is automatically routed to Gemini and Gemini gives its insights. I googled questions I had. Then Gemini explained and I sometimed prompted followup questions to better understand what it was explaining about how Huffman Coding Algorithm worked. 
 
 ## References  
 
