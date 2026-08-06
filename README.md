@@ -147,13 +147,37 @@ Reading down the chart, the frequency of the symbols falls but the length of the
 
 ## Implementation
 
-Implimentation of 
+Implimentation of of Huffman coding algorithm was completed in Python. I chose Python becuase it was the first coding language that I learned and feel most comfortable with the logic and debugging of python. Even though C is probably better to code in for this assignment due to being easier to manipulate in terms of memory, I felt that Python would allow me to complete the assignment most efficently. To impliment Huffmans coding algorithm I created huffman_coding.py, tested it with test_huggman.py and did the empirical measurements in empirical_analysis.py. Th graphs and analysis were produced from the resulting CSV files with the results of running the algorithm. Also, in terms of libraries, there werent any third party libraries that were necessary to complete the setpup and compile the code. 
 
-- What language did you use?
-- What libraries did you use?
-- What were the challenges you faced?
-- Provide key points of the algorithm/datastructure implementation, discuss the code.
-- If you found code in another language, and then implemented in your own language that is fine - but make sure to document that.
+While composing the code, I ran into three diffuculties initially. First and naturally, I had to take time to understand what Huffmans coding algorithm acutally did to create a lossless memory compression. After doing some research and watching some explanations online, I realized that I had a diffucult time figuiring out how to handle a case where there is only one distinct symbol. Since a tree built from a single symbol has no internal nodes and the root is itself the leaf, the walk from root to leaf takes zero steps and the symbol receives the empty codeword. Encoding ten thousand identical characters therefore produces a bit string of length zero, and although the tree fully describes the data the decoder has no way of knowing how many characters to emit, which is why the header stores the original character count and the decoder rebuilds the run from it. The second was that storing the tree as a pre-order traversal keeps the decoder simple but is not compact, costing 53 bytes for the 36-character sample, which as shown above is most of the reason small files fail to compress.
+
+The core of the implementation is the merging loop, which places every symbol in the heap as a leaf weighted by its count and then repeatedly combines the two lightest nodes under a new parent until a single root remains. Since `heapq` compares the objects it stores, the node class defines `__lt__` to compare frequencies, and `heapify` is used to build the initial heap in Θ(n) rather than pushing each leaf separately:
+
+```python
+heap = [HuffmanNode(char, freq) for char, freq in freq_table.items()]
+heapq.heapify(heap)
+
+while len(heap) > 1:
+    left = heapq.heappop(heap)
+    right = heapq.heappop(heap)
+    parent = HuffmanNode(None, left.freq + right.freq, left, right)
+    heapq.heappush(heap, parent)
+```
+
+The codewords are then read off the finished tree by walking down from the root and recording the path taken to each leaf, appending a 0 for a left step and a 1 for a right step, and because a symbol only ever sits at a leaf no codeword can be a prefix of another:
+
+```python
+def _walk(node: HuffmanNode, prefix: str) -> None:
+    if node.is_leaf():
+        code_table[node.char] = prefix
+        return
+    if node.left:
+        _walk(node.left, prefix + "0")
+    if node.right:
+        _walk(node.right, prefix + "1")
+```
+
+Decoding reverses this by following one bit at a time from the root and emitting a symbol whenever a leaf is reached. Since the compressed file must be readable on its own the tree travels with it, serialised as a pre-order traversal in which a leaf is written as `L` followed by its symbol and an internal node as `I` followed by its two children. The finished file is laid out as `[4B: padding] [4B: tree_len] [4B: original_len] [tree] [payload]`, where the padding field records how many zero bits were added to round the final byte out, since the total number of encoded bits is almost never an exact multiple of 8.
 
 ## Summary
 
